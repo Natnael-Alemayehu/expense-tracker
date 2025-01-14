@@ -25,10 +25,17 @@ func BuildTale() error {
 	return nil
 }
 
-func GoPretty(expenses []data.Expense) {
+func GoPretty(expenses []data.Expense) error {
+
+	// Fetching Total
+	total, err := CalculateSummary()
+	if err != nil {
+		return err
+	}
+
 	tw := table.NewWriter()
 	tw.AppendHeader(rowHeader)
-	rowFooter := table.Row{"", "", "Total", "Not Calculated"}
+	rowFooter := table.Row{"", "", "Total", total}
 	tw.AppendFooter(rowFooter)
 
 	for _, val := range expenses {
@@ -37,5 +44,6 @@ func GoPretty(expenses []data.Expense) {
 		})
 	}
 	fmt.Println(tw.Render())
+	return nil
 
 }

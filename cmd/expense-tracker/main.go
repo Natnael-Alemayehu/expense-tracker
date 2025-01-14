@@ -54,7 +54,7 @@ func main() {
 			fmt.Print(err)
 			os.Exit(1)
 		}
-		output := fmt.Sprintf("Total expenses: $", total)
+		output := fmt.Sprintf("total expenses: %v \n", total)
 		fmt.Print(output)
 	case "delete":
 		deletecmd.Parse(os.Args[2:])
