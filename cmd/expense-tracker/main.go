@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/natnael-alemayehu/expense-tracker/internal"
 )
 
 func main() {
@@ -36,11 +38,24 @@ func main() {
 			addcmd.PrintDefaults()
 			os.Exit(1)
 		}
-		fmt.Printf("description: %v, amount: %v \n", *addDescription, *addAmount)
+		err := internal.AddExpense(*addDescription, *addAmount)
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+
 	case "list":
-		fmt.Println("Printing the list")
+		if err := internal.BuildTale(); err != nil {
+			fmt.Println("Building list table failed")
+			os.Exit(1)
+		}
 	case "summary":
-		fmt.Println("Printing summary")
+		total, err := internal.CalculateSummary()
+		if err != nil {
+			fmt.Print(err)
+			os.Exit(1)
+		}
+		output := fmt.Sprintf("Total expenses: $", total)
+		fmt.Print(output)
 	case "delete":
 		deletecmd.Parse(os.Args[2:])
 		if *deleteId <= 0 {
