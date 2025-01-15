@@ -28,7 +28,7 @@ func BuildTale() error {
 func GoPretty(expenses []data.Expense) error {
 
 	// Fetching Total
-	total, err := CalculateSummary()
+	total, err := CalculateSummary(0)
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/natnael-alemayehu/expense-tracker/internal"
 )
@@ -12,6 +13,7 @@ func main() {
 	// Creates a subdomain add
 	addcmd := flag.NewFlagSet("add", flag.ExitOnError)
 	deletecmd := flag.NewFlagSet("delete", flag.ExitOnError)
+	summarycmd := flag.NewFlagSet("summary", flag.ExitOnError)
 
 	// flags for add
 	addDescription := addcmd.String("description", "", "Description of the expense")
@@ -19,6 +21,9 @@ func main() {
 
 	// flags for delete
 	deleteId := deletecmd.Int("ID", 0, "Deletes expense with the provided id")
+
+	// flags for summary
+	monthInt := summarycmd.Int("month", 0, "Months for summary report")
 
 	if len(os.Args) < 2 {
 		fmt.Print("Expected command (add, list, summary, delete) ")
@@ -49,13 +54,27 @@ func main() {
 			os.Exit(1)
 		}
 	case "summary":
-		total, err := internal.CalculateSummary()
-		if err != nil {
-			fmt.Print(err)
+		summarycmd.Parse(os.Args[2:])
+		if *monthInt == 0 {
+			// Calcualte summary with 0 month will calculate the whole summary
+			total, err := internal.CalculateSummary(0)
+			if err != nil {
+				fmt.Print(err)
+				os.Exit(1)
+			}
+			output := fmt.Sprintf("Total expenses: %v \n", total)
+			fmt.Print(output)
+		} else if *monthInt <= 0 || *monthInt > 12 {
+			fmt.Println("Month command is not correctly set: (1,12)")
 			os.Exit(1)
+		} else {
+			total, err := internal.CalculateSummary(*monthInt)
+			if err != nil {
+				fmt.Printf("Error Calculating summary: %v \n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("Total expenses for %s: %v \n", time.Month(*monthInt), total)
 		}
-		output := fmt.Sprintf("total expenses: %v \n", total)
-		fmt.Print(output)
 	case "delete":
 		deletecmd.Parse(os.Args[2:])
 		if *deleteId <= 0 {

@@ -26,9 +26,6 @@ func ReadFile(filename string) (*os.File, error) {
 	} else if err != nil {
 		return nil, fmt.Errorf("error opening file: %q", err)
 	}
-	if err != nil {
-		return nil, fmt.Errorf("error reading stat: %q", err)
-	}
 	return file, nil
 }
 
@@ -117,15 +114,33 @@ func ReadExpenses(filename string) ([]data.Expense, error) {
 	return expenses, nil
 }
 
-func CalculateSummary() (total int, err error) {
+// Calcualte summary with 0 month will calculate the whole summary
+func CalculateSummary(month int) (total int, err error) {
 	expenses, err := ReadExpenses(FILENAME)
 	if err != nil {
 		return 0, err
 	}
-	total = 0
-	for _, val := range expenses {
-		total += int(val.Amount)
 
+	month_ := time.Month(month)
+
+	total = 0
+	if month == 0 {
+		for _, val := range expenses {
+			total += int(val.Amount)
+		}
+		return total, nil
+	} else if month >= 1 && month <= 12 {
+		for _, val := range expenses {
+			d, err := time.Parse(dateForamt, val.Date)
+			if err != nil {
+				return 0, fmt.Errorf("error Parsing Date: %v", err)
+			}
+			if d.Month() == month_ {
+				total += int(val.Amount)
+			}
+		}
+		return total, nil
+	} else {
+		return 0, fmt.Errorf("invalid month")
 	}
-	return total, nil
 }
