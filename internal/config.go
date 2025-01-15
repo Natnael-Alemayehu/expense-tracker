@@ -1,5 +1,5 @@
 package internal
 
-const (
+var (
 	FILENAME = "expenses.txt"
 )

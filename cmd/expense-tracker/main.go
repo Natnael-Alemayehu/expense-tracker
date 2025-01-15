@@ -20,7 +20,7 @@ func main() {
 	addAmount := addcmd.Float64("amount", 0, "Amount of the expense")
 
 	// flags for delete
-	deleteId := deletecmd.Int("ID", 0, "Deletes expense with the provided id")
+	deleteId := deletecmd.Int("id", 0, "Deletes expense with the provided id")
 
 	// flags for summary
 	monthInt := summarycmd.Int("month", 0, "Months for summary report")
@@ -81,8 +81,14 @@ func main() {
 			fmt.Println("Id doesn't exist")
 			deletecmd.PrintDefaults()
 			os.Exit(1)
+		} else {
+			err := internal.Delete(*deleteId)
+			if err != nil {
+				fmt.Printf("error deleting Expense: %q \n", err)
+				os.Exit(1)
+			}
 		}
-		fmt.Printf("Expense with ID: %d, Deleted Successfully\n", *deleteId)
+
 	default:
 		fmt.Println("Command does not exist does not exist")
 		os.Exit(1)

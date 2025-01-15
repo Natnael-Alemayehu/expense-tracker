@@ -144,3 +144,47 @@ func CalculateSummary(month int) (total int, err error) {
 		return 0, fmt.Errorf("invalid month")
 	}
 }
+
+func Delete(idArg int) error {
+	expenses, err := ReadExpenses(FILENAME)
+	if err != nil {
+		return fmt.Errorf("error reading file: %v", err)
+	}
+	idFound := true
+	for _, v := range expenses {
+		if v.Id == idArg {
+			expenses = append(expenses[:idArg-1], expenses[idArg:]...)
+			idFound = false
+			break
+		}
+	}
+	if idFound {
+		return fmt.Errorf("id not found")
+	}
+
+	if err = WriteExpense(expenses); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func WriteExpense(expenses []data.Expense) error {
+	file, err := ReadFile(FILENAME)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	os.Truncate(file.Name(), 0)
+	file.Seek(0, 0)
+
+	for _, v := range expenses {
+		_, err = file.WriteString(fmt.Sprintf("id: %d,date: %v,description: %v,amount: %.2f\n", v.Id, v.Date, v.Description, v.Amount))
+		if err != nil {
+			return fmt.Errorf("failed to write to file: %w", err)
+		}
+
+	}
+	return nil
+}
